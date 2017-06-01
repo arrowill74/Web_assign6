@@ -16,7 +16,7 @@
                 <span class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#activityEditor" @click="editorCreateActivity()"></span>
                 <span v-if="data.currentUser"><img :src="data.currentUser.photoURL" alt="" width="30" height="30"></span>
                 <span v-if="data.currentUser" class="glyphicon glyphicon glyphicon-off" @click="logout()"></span>
-                <span v-else class="glyphicon glyphicon-user" @click="login()"></span>
+                    <span v-else class="glyphicon glyphicon-user" @click="login()"></span>
             </div>
         </nav>
         <main class="container">
@@ -24,7 +24,7 @@
                 <article class="item" v-for="(activity ,activity_id) in data.activities">
                     <header>
                         <h1>{{activity.title}} </h1>
-                        <div v-if="data.currentUser" class="animation-swipe star" :class="{ favorite : data.favorites[activity_id]  } " @click="toggle_like(activity_id)">
+                        <div v-if="data.currentUser" class="animation-swipe star" :class=" {favorite:data.favorites[activity_id] }" @click="toggle_like(activity_id)">
                             <span class="glyphicon glyphicon-star"></span>
                         </div>
                     </header>
@@ -196,7 +196,14 @@
 
             toggle_like: function(activity_id) {
                 // ASN REQ 4 : update favoritesRef at `currentUser.uid ` at `activity_id` to true
-
+                var vm = this;
+                var uid = vm.data.currentUser.uid;
+                var act = activity_id;
+                favoritesRef
+                  .child(uid)
+                  .child(act)
+                  .set(true)
+                  .catch(errorCallback)
             },
 
             // C , R , D
@@ -231,7 +238,7 @@
             var vm = this;
             activitiesRef.on("value", function(actsSnapshot) {
                 actsSnapshot.forEach(function(actSnapshot) {
-                    // setup login status 
+                    // setup login status
                     var act = actSnapshot.val();
                     vm.$set(vm.data.activities, actSnapshot.key, act);
                 })
@@ -246,9 +253,9 @@
                     // save usr public data  (*1)
                     var userData = user.toJSON();
                     usersRef
-                        .child(userData.uid);
-                        .update(userData);
-                        .catch(errorCallback);
+                        .child(userData.uid)
+                        .update(userData)
+                        .catch(errorCallback)
                         // update vue to login status
                     vm.$set(vm.data, "currentUser", userData);
                 } else {
@@ -258,7 +265,14 @@
             })
                 // ASN REQ 4 :
                 // listen on chages on favorite data of currentUser , and set it to vm.data.currentUser
-
+                favoritesRef.on("value", function(favsSnapshot) {
+                    favsSnapshot.forEach(function(favSnapshot) {
+                        // setup login status
+                        var fav = favSnapshot.val();
+                        console.log(vm.data.favorites);
+                        vm.$set(vm.data.favorites, favSnapshot.key, fav);
+                    })
+                })
             // else : not login : set vm.data.currentUser to null
 
 
