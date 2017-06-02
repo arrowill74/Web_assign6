@@ -258,6 +258,14 @@
                         .catch(errorCallback)
                         // update vue to login status
                     vm.$set(vm.data, "currentUser", userData);
+
+                    favoritesRef.on("value", function(favsSnapshot) {
+                        favsSnapshot.forEach(function(favSnapshot) {
+                            // setup login status
+                            var fav = favSnapshot.val();
+                            vm.$set(vm.data,"favorites", fav);
+                        })
+                    })
                 } else {
                     // update vue to logout status
                     vm.$set(vm.data, "currentUser", null);
@@ -265,14 +273,7 @@
             })
                 // ASN REQ 4 :
                 // listen on chages on favorite data of currentUser , and set it to vm.data.currentUser
-                favoritesRef.on("value", function(favsSnapshot) {
-                    favsSnapshot.forEach(function(favSnapshot) {
-                        // setup login status
-                        var fav = favSnapshot.val();
-                        console.log(vm.data.favorites);
-                        vm.$set(vm.data.favorites, favSnapshot.key, fav);
-                    })
-                })
+
             // else : not login : set vm.data.currentUser to null
 
 
