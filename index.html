@@ -13,7 +13,7 @@
         <nav class="container">
             <h1 class="pull-left">獨立音樂活動清單</h1>
             <div class="pull-right">
-                <span class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#activityEditor" @click="editorCreateActivity()"></span>
+                <span v-if="data.currentUser" class="glyphicon glyphicon-plus" data-toggle="modal" data-target="#activityEditor" @click="editorCreateActivity()"></span>
                 <span v-if="data.currentUser"><img :src="data.currentUser.photoURL" alt="" width="30" height="30"></span>
                 <span v-if="data.currentUser" class="glyphicon glyphicon glyphicon-off" @click="logout()"></span>
                     <span v-else class="glyphicon glyphicon-user" @click="login()"></span>
@@ -41,8 +41,8 @@
                         <dd>{{activity.address}}</dd>
                     </dl>
                     <footer>
-                        <span class="bn glyphicon glyphicon-pencil" @click="editorEditActivity( activity_id , activity )" data-toggle="modal" data-target="#activityEditor"></span>
-                        <span class="bn glyphicon glyphicon-remove" @click="removeActivity( activity_id )"></span>
+                        <span v-if="data.currentUser" class="bn glyphicon glyphicon-pencil" @click="editorEditActivity( activity_id , activity )" data-toggle="modal" data-target="#activityEditor"></span>
+                        <span v-if="data.currentUser" class="bn glyphicon glyphicon-remove" @click="removeActivity( activity_id )"></span>
                     </footer>
                 </article>
             </div>
@@ -249,6 +249,7 @@
             // set login user to vm.data.currentUser
 
             firebase.auth().onAuthStateChanged(function(user) {
+
                 if (user) {
                     // save usr public data  (*1)
                     var userData = user.toJSON();
@@ -263,7 +264,11 @@
                         favsSnapshot.forEach(function(favSnapshot) {
                             // setup login status
                             var fav = favSnapshot.val();
-                            vm.$set(vm.data,"favorites", fav);
+
+                            if(favSnapshot.key === vm.data.currentUser.uid){
+                              console.log(fav);
+                              vm.$set(vm.data,"favorites", fav);
+                            }
                         })
                     })
                 } else {
